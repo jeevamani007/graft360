@@ -1,0 +1,68 @@
+# Graft 360: web app + PostgreSQL + daily backup
+# Start:  docker compose up -d --build        Open: http://localhost:8000
+name: graft360
+
+services:
+  # ---------------------------------------------------------------- database
+  db:
+    image: postgres:16-alpine
+    container_name: graft360-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
+      POSTGRES_DB: ${DB_NAME:-TASK-PROJECT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data        # data survives container restarts and rebuilds
+    ports:
+      - "127.0.0.1:5433:5432"                  # for pgAdmin on this PC (5433, so it never clashes with a local PostgreSQL on 5432)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # ---------------------------------------------------------------- web app
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: graft360-app
+    container_name: graft360-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy             # wait until PostgreSQL is ready
+    environment:
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-1234}
+      DB_HOST: db                              # the database container's name
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-TASK-PROJECT}
+    ports:
+      - "8000:8000"
+
+  # ---------------------------------------------------------------- daily backup (pg_dump)
+  backup:
+    image: postgres:16-alpine
+    container_name: graft360-backup
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${DB_USER:-postgres}
+      PGPASSWORD: ${DB_PASSWORD:-1234}
+      PGDATABASE: ${DB_NAME:-TASK-PROJECT}
+      BACKUP_HOUR: ${BACKUP_HOUR:-21}          # hour of the day (0-23, container time = UTC)
+      KEEP_DAYS: ${KEEP_DAYS:-14}              # older backups are deleted
+    volumes:
+      - ${BACKUP_DIR:-./backups}:/backups      # set BACKUP_DIR to a folder on a second drive, e.g. D:/graft360_backups
+      - ./docker/backup.sh:/backup.sh:ro
+    # tr removes Windows line endings so the script runs even if it was saved with CRLF
+    entrypoint: ["/bin/sh", "-c", "tr -d '\\r' < /backup.sh > /tmp/backup.sh && exec sh /tmp/backup.sh"]
+
+volumes:
+  pgdata:
+  

@@ -1,0 +1,10 @@
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.git
+.env
+*.zip
+backups
+backend/tests
+backend/test_report.html
+backend/make_test_report.py

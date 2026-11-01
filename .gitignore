@@ -1,0 +1,32 @@
+# ---------- folders you do NOT want in GitHub ----------
+tests/
+/data/
+
+# ---------- Python temporary files ----------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# ---------- secrets and local settings ----------
+.env
+.env.*
+!.env.example
+
+# ---------- database, backups, generated files ----------
+backups/
+*.dump
+*.sql
+*.db
+*.sqlite3
+test_report.html
+*.zip
+
+# ---------- editor and Windows junk ----------
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.log
