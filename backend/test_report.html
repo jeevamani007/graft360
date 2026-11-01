@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graft 360 - Test report</title>
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--ink:#1d1d1f;--muted:#6e6e73;--line:rgba(0,0,0,.1);--soft:rgba(0,0,0,.05);--blue:#0071e3;
+--good:#1f7a3a;--good-bg:#e9f6ed;--bad:#c4160a;--bad-bg:#fdeeec;--warn:#a85200;--warn-bg:#fff3e0;--shadow:0 6px 30px rgba(0,0,0,.07)}
+@media(prefers-color-scheme:dark){:root{--bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--muted:#a1a1a6;--line:rgba(255,255,255,.14);--soft:rgba(255,255,255,.08);
+--blue:#2997ff;--good:#6fdc92;--good-bg:#14301f;--bad:#ff8a80;--bad-bg:#3a1b19;--warn:#ffc266;--warn-bg:#352708;--shadow:none}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1000px;margin:auto;padding:48px 22px 80px}
+h1{font-size:clamp(32px,5vw,48px);letter-spacing:-.03em;margin:0;line-height:1.08}
+.sub{color:var(--muted);margin:6px 0 26px}
+.banner{border-radius:20px;padding:20px 24px;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.banner.ok{background:var(--good-bg);color:var(--good)}.banner.bad{background:var(--bad-bg);color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--card);border-radius:18px;padding:14px 18px;box-shadow:var(--shadow)}
+.stat span{color:var(--muted);font-size:13px}.stat b{display:block;font-size:30px;letter-spacing:-.03em;line-height:1.2}
+.stat.g b{color:var(--good)}.stat.r b{color:var(--bad)}.stat.w b{color:var(--warn)}
+.bar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden;margin:6px 0 26px}.bar i{display:block;height:100%;background:var(--good);width:97%}
+.tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.seg{display:inline-flex;background:var(--soft);padding:3px;border-radius:12px}
+.seg button{border:0;background:none;font:inherit;font-size:14px;padding:6px 14px;border-radius:9px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+input[type=search]{font:inherit;font-size:14px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:240px;flex:1;max-width:340px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:8px}
+.ghead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:36px 0 12px;flex-wrap:wrap}
+.ghead h2{margin:0;font-size:25px;letter-spacing:-.025em}.ghead p{margin:0;color:var(--muted);font-size:14px}.gcount{font-size:14px;color:var(--muted)}
+.test{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:12px;border-left:6px solid var(--good)}
+.test.failed{border-left-color:var(--bad)}.test.skipped{border-left-color:var(--warn)}
+.top{display:flex;align-items:center;gap:10px}.top h3{margin:0;font-size:18px;letter-spacing:-.015em;flex:1}
+.tid{font:600 12.5px ui-monospace,Menlo,Consolas,monospace;color:var(--muted);background:var(--soft);padding:2px 8px;border-radius:8px}
+.time{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.badge{font-size:12.5px;font-weight:700;padding:3px 12px;border-radius:99px;background:var(--good-bg);color:var(--good);white-space:nowrap}
+.badge.failed{background:var(--bad-bg);color:var(--bad)}.badge.skipped{background:var(--warn-bg);color:var(--warn)}
+.src{margin:6px 0 10px;color:var(--blue);font-size:13.5px}
+dl{display:grid;grid-template-columns:120px 1fr;gap:6px 12px;margin:0;font-size:14.5px}dt{color:var(--muted)}dd{margin:0}
+.chip{display:inline-block;padding:1px 10px;border-radius:99px;font-size:12.5px;margin:0 6px 4px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.chip.in{background:var(--soft)}.chip.out{background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.cmp>div{background:var(--soft);border-radius:12px;padding:10px 14px}.cmp>div.good{background:var(--good-bg)}.cmp>div.bad{background:var(--bad-bg)}
+.cmp span{font-size:12px;color:var(--muted);text-transform:none}.cmp p{margin:2px 0 0;font:13.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-word}
+.note{margin:12px 0 0;padding:10px 14px;border-radius:12px;background:var(--warn-bg);color:var(--warn);font-size:14px}
+details{margin-top:12px}summary{cursor:pointer;color:var(--bad);font-weight:600;font-size:14px}
+pre{background:var(--bad-bg);color:var(--bad);padding:12px;border-radius:12px;overflow:auto;font-size:12.5px;white-space:pre-wrap}
+.none{text-align:center;color:var(--muted);padding:30px}footer{margin-top:40px;color:var(--muted);font-size:13px;text-align:center}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;background:var(--soft);padding:1px 7px;border-radius:6px}
+@media(max-width:620px){dl{grid-template-columns:1fr}dt{margin-top:4px}.cmp{grid-template-columns:1fr}.top{flex-wrap:wrap}}
+@media print{body{background:#fff}.tools{display:none}.test{box-shadow:none;border:1px solid #ddd;break-inside:avoid}}
+</style></head><body><main>
+<h1>Graft 360 test report</h1>
+<p class="sub">Generated 01 Nov 2026, 15:19. Test cases are written from the two PDFs. They run on a temporary database, your real data is not touched.</p>
+<div class="banner ok" role="status">All 35 built requirements passed (1 not built yet)</div>
+<div class="stats">
+ <div class="stat"><span>Checks</span><b>36</b></div>
+ <div class="stat g"><span>Passed</span><b>35</b></div>
+ <div class="stat r"><span>Failed</span><b>0</b></div>
+ <div class="stat w"><span>Not built</span><b>1</b></div>
+ <div class="stat"><span>Run time</span><b>12.3 s</b></div>
+</div>
+<div class="bar" aria-hidden="true"><i></i></div>
+<div class="tools">
+ <div class="seg" id="seg" role="group" aria-label="Filter"><button class="on" data-v="">All</button><button data-v="passed">Passed</button><button data-v="failed">Failed</button><button data-v="skipped">Not built</button></div>
+ <input type="search" id="q" placeholder="Search a field, e.g. V_plasma_mL, or an ID, e.g. B2" aria-label="Search checks">
+</div>
+<section><div class="ghead"><div><h2>Step 1: the input dataset</h2><p>Assignment PDF, Step 1</p></div><span class="gcount">2 of 2 passed</span></div><article class="test passed" data-status="passed" data-text="a1 the sample csv is read with pandas save the dataset as sample_holograft_data.csv: 5 patients, 9 columns. sample_holograft_data.csv">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">A1</span><h3>The sample CSV is read with Pandas</h3><span class="time">8 ms</span></div>
+ <p class="src">Assignment PDF, Step 1</p>
+ <dl><dt>Requirement</dt><dd>Save the dataset as sample_holograft_data.csv: 5 patients, 9 columns.</dd><dt>How it is tested</dt><dd>Feeds the exact 5-row dataset from the PDF to the CSV reader.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">sample_holograft_data.csv</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>rows: 5  |  columns: 9</p></div><div class="good"><span>Actual</span><p>rows: 5  |  columns: 9</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="a2 a header with spaces after the commas still works the second pdf writes the header as &#x27;patient_id, test_date, ...&#x27; with spaces. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">A2</span><h3>A header with spaces after the commas still works</h3><span class="time">3 ms</span></div>
+ <p class="src">Assignment PDF 2, Step 1</p>
+ <dl><dt>Requirement</dt><dd>The second PDF writes the header as &#x27;Patient_ID, Test_Date, ...&#x27; with spaces.</dd><dt>How it is tested</dt><dd>Reads the same data with that header style and checks every required column is found.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>rows: 5  |  all columns found: True</p></div><div class="good"><span>Actual</span><p>rows: 5  |  all columns found: True</p></div></div>
+</article></section><section><div class="ghead"><div><h2>Step 2: the three formulas and the risk status</h2><p>Assignment PDF, Step 2</p></div><span class="gcount">7 of 7 passed</span></div><article class="test passed" data-status="passed" data-text="b1 cp_ml (standardized plasma concentration) cp_ml = c_rxn x (v_rxn / v_template) x (v_elution / v_plasma) x zygosity_z c_rxn_copies_ul v_rxn_ul v_template_ul v_elution_ul v_plasma_ml zygosity_z dd_cfdna_pct cp_ml">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B1</span><h3>cp_mL (standardized plasma concentration)</h3><span class="time">3 ms</span></div>
+ <p class="src">Assignment PDF, Step 2, formula 1</p>
+ <dl><dt>Requirement</dt><dd>cp_mL = C_rxn x (V_rxn / V_template) x (V_elution / V_plasma) x Zygosity_Z</dd><dt>How it is tested</dt><dd>Compares the app&#x27;s cp_mL for each valid patient with the value worked out by hand.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">C_rxn_copies_uL</span><span class="chip in">V_rxn_uL</span><span class="chip in">V_template_uL</span><span class="chip in">V_elution_uL</span><span class="chip in">V_plasma_mL</span><span class="chip in">Zygosity_Z</span><span class="chip in">dd_cfDNA_pct</span></dd><dt>Fields out</dt><dd><span class="chip out">cp_mL</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>PT-101: 18.75  |  PT-102: 63.75  |  PT-103: 16.5  |  PT-104: 144</p></div><div class="good"><span>Actual</span><p>PT-101: 18.75  |  PT-102: 63.75  |  PT-103: 16.5  |  PT-104: 144</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="b2 eta (log-odds) eta = -2.85 + (2.10 x dd_cfdna_pct) + (0.025 x cp_ml) dd_cfdna_pct cp_ml eta">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B2</span><h3>eta (log-odds)</h3><span class="time">4 ms</span></div>
+ <p class="src">Assignment PDF, Step 2, formula 2</p>
+ <dl><dt>Requirement</dt><dd>eta = -2.85 + (2.10 x dd_cfDNA_pct) + (0.025 x cp_mL)</dd><dt>How it is tested</dt><dd>Compares eta with the hand-calculated value for each valid patient.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">dd_cfDNA_pct</span><span class="chip in">cp_mL</span></dd><dt>Fields out</dt><dd><span class="chip out">eta</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>PT-101: -1.7933  |  PT-102: 0.1087  |  PT-103: -0.8625  |  PT-104: 4.74</p></div><div class="good"><span>Actual</span><p>PT-101: -1.7933  |  PT-102: 0.1088  |  PT-103: -0.8625  |  PT-104: 4.74</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="b3 prob (rejection probability) prob = 1 / (1 + e^-eta) eta prob">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B3</span><h3>prob (rejection probability)</h3><span class="time">3 ms</span></div>
+ <p class="src">Assignment PDF, Step 2, formula 2</p>
+ <dl><dt>Requirement</dt><dd>prob = 1 / (1 + e^-eta)</dd><dt>How it is tested</dt><dd>Compares prob with the hand-calculated value (4 decimals).</dd>
+ <dt>Fields in</dt><dd><span class="chip in">eta</span></dd><dt>Fields out</dt><dd><span class="chip out">prob</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>PT-101: 0.1427  |  PT-102: 0.5272  |  PT-103: 0.2968  |  PT-104: 0.9913</p></div><div class="good"><span>Actual</span><p>PT-101: 0.1427  |  PT-102: 0.5272  |  PT-103: 0.2968  |  PT-104: 0.9913</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="b4 cm_score (zero-centered) cm_score = (prob / 0.3318) - 1.0 prob cm_score">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B4</span><h3>CM_Score (zero-centered)</h3><span class="time">4 ms</span></div>
+ <p class="src">Assignment PDF, Step 2, formula 3</p>
+ <dl><dt>Requirement</dt><dd>CM_Score = (prob / 0.3318) - 1.0</dd><dt>How it is tested</dt><dd>Compares CM_Score with the hand-calculated value.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">prob</span></dd><dt>Fields out</dt><dd><span class="chip out">CM_Score</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>PT-101: -0.57  |  PT-102: 0.5888  |  PT-103: -0.1054  |  PT-104: 1.9878</p></div><div class="good"><span>Actual</span><p>PT-101: -0.57  |  PT-102: 0.5888  |  PT-103: -0.1054  |  PT-104: 1.9878</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="b5 the constants are exactly as given topt = 0.3318, intercept -2.85, dd-cfdna coefficient 2.10, cp_ml coefficient 0.025. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B5</span><h3>The constants are exactly as given</h3><span class="time">0 ms</span></div>
+ <p class="src">Assignment PDF, Step 2</p>
+ <dl><dt>Requirement</dt><dd>Topt = 0.3318, intercept -2.85, dd-cfDNA coefficient 2.10, cp_mL coefficient 0.025.</dd><dt>How it is tested</dt><dd>Reads the constants used by the app.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>Topt: 0.3318  |  intercept: -2.85  |  dd_coef: 2.1  |  cp_coef: 0.025</p></div><div class="good"><span>Actual</span><p>Topt: 0.3318  |  intercept: -2.85  |  dd_coef: 2.1  |  cp_coef: 0.025</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="b6 risk status for each sample patient high risk (positive) if cm_score &gt;= 0.0, otherwise low risk (negative). cm_score status">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B6</span><h3>Risk status for each sample patient</h3><span class="time">3 ms</span></div>
+ <p class="src">Assignment PDF, Step 2</p>
+ <dl><dt>Requirement</dt><dd>High Risk (Positive) if CM_Score &gt;= 0.0, otherwise Low Risk (Negative).</dd><dt>How it is tested</dt><dd>Checks the status the app gives to each patient in the sample file.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">CM_Score</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>PT-101: Low Risk (Negative)  |  PT-102: High Risk (Positive)  |  PT-103: Low Risk (Negative)  |  PT-104: High Risk (Positive)</p></div><div class="good"><span>Actual</span><p>PT-101: Low Risk (Negative)  |  PT-102: High Risk (Positive)  |  PT-103: Low Risk (Negative)  |  PT-104: High Risk (Positive)</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="b7 the 0.0 boundary of the status rule the switch from low to high happens at cm_score = 0.0 (prob = 0.3318). cp_ml status">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">B7</span><h3>The 0.0 boundary of the status rule</h3><span class="time">0 ms</span></div>
+ <p class="src">Assignment PDF, Step 2</p>
+ <dl><dt>Requirement</dt><dd>The switch from Low to High happens at CM_Score = 0.0 (prob = 0.3318).</dd><dt>How it is tested</dt><dd>With dd-cfDNA = 0, cp_mL = 86.00 gives a probability just above 0.3318 and 85.99 just below it.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">cp_mL</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>cp_mL 86.00: High Risk (Positive)  |  cp_mL 85.99: Low Risk (Negative)</p></div><div class="good"><span>Actual</span><p>cp_mL 86.00: High Risk (Positive)  |  cp_mL 85.99: Low Risk (Negative)</p></div></div>
+</article></section><section><div class="ghead"><div><h2>Step 3: bad rows must not crash the app</h2><p>Assignment PDF, Step 3 (FastAPI backend and input validation)</p></div><span class="gcount">8 of 8 passed</span></div><article class="test passed" data-status="passed" data-text="c1 pt-105 (plasma volume 0) is marked invalid, no crash validate invalid or zero volumes so the application does not crash on bad rows. v_plasma_ml = 0 status cp_ml prob cm_score">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C1</span><h3>PT-105 (plasma volume 0) is marked invalid, no crash</h3><span class="time">4 ms</span></div>
+ <p class="src">Assignment PDF, Step 3 + Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Validate invalid or zero volumes so the application does not crash on bad rows.</dd><dt>How it is tested</dt><dd>Runs the PT-105 row from the dataset. No infinite or corrupted number may be produced.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">V_plasma_mL = 0</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span><span class="chip out">cp_mL</span><span class="chip out">prob</span><span class="chip out">CM_Score</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>status: Invalid  |  cp_mL: None  |  prob: None  |  CM_Score: None</p></div><div class="good"><span>Actual</span><p>status: Invalid  |  cp_mL: None  |  prob: None  |  CM_Score: None</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c2 negative volume is rejected catch plasma volume &lt;= 0, not only exactly 0. v_plasma_ml = -2 status">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C2</span><h3>Negative volume is rejected</h3><span class="time">0 ms</span></div>
+ <p class="src">Assignment PDF, Step 3 + Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Catch plasma volume &lt;= 0, not only exactly 0.</dd><dt>How it is tested</dt><dd>Runs a row with V_plasma_mL = -2.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">V_plasma_mL = -2</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>status: Invalid  |  message names V_plasma_mL: True</p></div><div class="good"><span>Actual</span><p>status: Invalid  |  message names V_plasma_mL: True</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c3 blank and nan values are rejected check for missing/nan values. v_plasma_ml blank / nan / null status">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C3</span><h3>Blank and NaN values are rejected</h3><span class="time">0 ms</span></div>
+ <p class="src">Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Check for missing/NaN values.</dd><dt>How it is tested</dt><dd>Runs rows where V_plasma_mL is empty, &#x27;NaN&#x27; and &#x27;null&#x27;.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">V_plasma_mL blank / NaN / null</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>(blank): Invalid  |  NaN: Invalid  |  null: Invalid</p></div><div class="good"><span>Actual</span><p>(blank): Invalid  |  NaN: Invalid  |  null: Invalid</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c4 text in a number column is rejected bad rows must not crash the app. dd_cfdna_pct c_rxn_copies_ul status">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C4</span><h3>Text in a number column is rejected</h3><span class="time">0 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Bad rows must not crash the app.</dd><dt>How it is tested</dt><dd>Runs a row with the word &#x27;abc&#x27; as dd_cfDNA_pct and as C_rxn_copies_uL.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">dd_cfDNA_pct</span><span class="chip in">C_rxn_copies_uL</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>Invalid, Invalid</p></div><div class="good"><span>Actual</span><p>Invalid, Invalid</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c5 zero template volume is rejected (second divisor) validate invalid or zero volumes. v_template_ul = 0 status">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C5</span><h3>Zero template volume is rejected (second divisor)</h3><span class="time">0 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Validate invalid or zero volumes.</dd><dt>How it is tested</dt><dd>Runs a row with V_template_uL = 0, which is also used in a division.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">V_template_uL = 0</span></dd><dt>Fields out</dt><dd><span class="chip out">Status</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>Invalid</p></div><div class="good"><span>Actual</span><p>Invalid</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c6 a file with wrong columns is refused with a clear message the application must not crash on a bad file. csv columns http 400 message">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C6</span><h3>A file with wrong columns is refused with a clear message</h3><span class="time">238 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>The application must not crash on a bad file.</dd><dt>How it is tested</dt><dd>Uploads a CSV that has only columns &#x27;a&#x27; and &#x27;b&#x27;.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">CSV columns</span></dd><dt>Fields out</dt><dd><span class="chip out">HTTP 400</span><span class="chip out">message</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>http: 400  |  message says missing columns: True</p></div><div class="good"><span>Actual</span><p>http: 400  |  message says missing columns: True</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c7 the whole sample file is processed: 4 valid, 1 invalid compute cp_ml, prob, cm_score and status for valid rows; flag invalid rows. sample_holograft_data.csv valid rows invalid rows">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C7</span><h3>The whole sample file is processed: 4 valid, 1 invalid</h3><span class="time">74 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Compute cp_mL, prob, CM_Score and Status for valid rows; flag invalid rows.</dd><dt>How it is tested</dt><dd>Uploads the 5-row dataset through the real upload endpoint.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">sample_holograft_data.csv</span></dd><dt>Fields out</dt><dd><span class="chip out">valid rows</span><span class="chip out">invalid rows</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>http: 200  |  rows: 5  |  valid: 4  |  invalid: 1</p></div><div class="good"><span>Actual</span><p>http: 200  |  rows: 5  |  valid: 4  |  invalid: 1</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="c8 no infinite or corrupted value is saved return a clear warning rather than saving infinite/corrupted values. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">C8</span><h3>No infinite or corrupted value is saved</h3><span class="time">17 ms</span></div>
+ <p class="src">Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Return a clear warning rather than saving infinite/corrupted values.</dd><dt>How it is tested</dt><dd>Reads back every saved sample result and checks each number is finite; the invalid row has no cp_mL.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>5 saved rows, every number finite, PT-105 has no cp_mL</p></div><div class="good"><span>Actual</span><p>5 saved rows, 16 numbers all finite, PT-105 cp_mL empty</p></div></div>
+</article></section><section><div class="ghead"><div><h2>Step 3: web report table and scatter plot</h2><p>Assignment PDF, Step 3 (web report view and plot)</p></div><span class="gcount">5 of 5 passed</span></div><article class="test passed" data-status="passed" data-text="d1 table numbers are rounded to 2 decimal places display an html table (rounded to 2 decimal places). ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">D1</span><h3>Table numbers are rounded to 2 decimal places</h3><span class="time">1 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Display an HTML table (rounded to 2 decimal places).</dd><dt>How it is tested</dt><dd>Looks for the 2-decimal rounding in the page script (frontend/app.js).</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>numbers formatted with toFixed(2)</p></div><div class="good"><span>Actual</span><p>toFixed(2) found</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="d2 high risk, low risk and invalid rows get different colours highlight high risk rows, low risk rows and invalid rows. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">D2</span><h3>High Risk, Low Risk and invalid rows get different colours</h3><span class="time">18 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Highlight High Risk rows, Low Risk rows and invalid rows.</dd><dt>How it is tested</dt><dd>Checks the page script gives each row a class, and the stylesheet colours all three.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>rules for tr.high, tr.low, tr.invalid, and the script sets them</p></div><div class="good"><span>Actual</span><p>css rules: high, low, invalid; script sets classes: True</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="d3 scatter plot: dd_cfdna_pct on x, cp_ml on y, invalid row left out matplotlib scatter plot of dd_cfdna_pct (x) against cp_ml (y). dd_cfdna_pct cp_ml">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">D3</span><h3>Scatter plot: dd_cfDNA_pct on X, cp_mL on Y, invalid row left out</h3><span class="time">518 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Matplotlib scatter plot of dd_cfDNA_pct (X) against cp_mL (Y).</dd><dt>How it is tested</dt><dd>Draws the plot for the sample upload and reads the plotted points back from the figure.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">dd_cfDNA_pct</span><span class="chip in">cp_mL</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>(0.28, 18.75), (0.65, 63.75), (0.75, 16.5), (1.9, 144)</p></div><div class="good"><span>Actual</span><p>(0.28, 18.75), (0.65, 63.75), (0.75, 16.5), (1.9, 144)   (4 points, PT-105 not plotted)</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="d4 dashed vertical reference line at x = 0.50 % dashed reference line at x = 0.50%. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">D4</span><h3>Dashed vertical reference line at X = 0.50 %</h3><span class="time">291 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Dashed reference line at X = 0.50%.</dd><dt>How it is tested</dt><dd>Reads the lines drawn on the scatter plot.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>a dashed vertical line at x = 0.50</p></div><div class="good"><span>Actual</span><p>dashed line at x = 0.50 found</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="d5 dashed horizontal reference line at y = 44 cp/ml dashed reference line at y = 44 cp/ml. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">D5</span><h3>Dashed horizontal reference line at Y = 44 cp/mL</h3><span class="time">243 ms</span></div>
+ <p class="src">Assignment PDF, Step 3</p>
+ <dl><dt>Requirement</dt><dd>Dashed reference line at Y = 44 cp/mL.</dd><dt>How it is tested</dt><dd>Reads the lines drawn on the scatter plot.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>a dashed horizontal line at y = 44</p></div><div class="good"><span>Actual</span><p>dashed line at y = 44 found</p></div></div>
+</article></section><section><div class="ghead"><div><h2>Interview questions Q3 to Q8</h2><p>Interview packet PDF, Parts B and C</p></div><span class="gcount">13 of 14 passed</span></div><article class="test passed" data-status="passed" data-text="e1 plasma volume 0 or blank: upload returns a warning, not an error return a clear validation warning rather than crashing. v_plasma_ml http status warning text">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E1</span><h3>Plasma volume 0 or blank: upload returns a warning, not an error</h3><span class="time">109 ms</span></div>
+ <p class="src">Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Return a clear validation warning rather than crashing.</dd><dt>How it is tested</dt><dd>Uploads one-row files with V_plasma_mL = 0, blank and NaN, and reads the app&#x27;s answer.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">V_plasma_mL</span></dd><dt>Fields out</dt><dd><span class="chip out">HTTP status</span><span class="chip out">warning text</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>0: (200, Invalid, True)  |  (blank): (200, Invalid, True)  |  NaN: (200, Invalid, True)</p></div><div class="good"><span>Actual</span><p>0: (200, Invalid, True)  |  (blank): (200, Invalid, True)  |  NaN: (200, Invalid, True)</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e2 schema validation with pydantic use schema validation (pydantic models in fastapi). ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E2</span><h3>Schema validation with Pydantic</h3><span class="time">7 ms</span></div>
+ <p class="src">Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Use schema validation (Pydantic models in FastAPI).</dd><dt>How it is tested</dt><dd>Checks the patient form model is a Pydantic model, and that an empty patient ID is refused with HTTP 422.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>Pydantic model: True  |  empty ID gives HTTP: 422</p></div><div class="good"><span>Actual</span><p>Pydantic model: True  |  empty ID gives HTTP: 422</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e3 one bad row does not stop the good rows do not crash on bad rows. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E3</span><h3>One bad row does not stop the good rows</h3><span class="time">41 ms</span></div>
+ <p class="src">Interview Q3</p>
+ <dl><dt>Requirement</dt><dd>Do not crash on bad rows.</dd><dt>How it is tested</dt><dd>Uploads a file where the first row is bad and the second row is good.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>Invalid, Low Risk (Negative)</p></div><div class="good"><span>Actual</span><p>Invalid, Low Risk (Negative)</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e4 normalized tables: patients, test_results, biopsies a patients table with patient_id as primary key, plus test_results and biopsies tables. patients test_results biopsies">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E4</span><h3>Normalized tables: patients, test_results, biopsies</h3><span class="time">3 ms</span></div>
+ <p class="src">Interview Q4</p>
+ <dl><dt>Requirement</dt><dd>A Patients table with patient_id as primary key, plus Test_Results and Biopsies tables.</dd><dt>How it is tested</dt><dd>Inspects the real table structure.</dd>
+ <dt>Fields out</dt><dd><span class="chip out">patients</span><span class="chip out">test_results</span><span class="chip out">biopsies</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>tables exist: True  |  patients primary key: patient_id</p></div><div class="good"><span>Actual</span><p>tables exist: True  |  patients primary key: patient_id</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e5 foreign keys link results and biopsies to the patient test_results and biopsies are linked by foreign key (patient_id). ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E5</span><h3>Foreign keys link results and biopsies to the patient</h3><span class="time">5 ms</span></div>
+ <p class="src">Interview Q4</p>
+ <dl><dt>Requirement</dt><dd>Test_Results and Biopsies are linked by Foreign Key (patient_id).</dd><dt>How it is tested</dt><dd>Reads the foreign keys of both tables.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>test_results -&gt; patients: True  |  biopsies -&gt; patients: True</p></div><div class="good"><span>Actual</span><p>test_results -&gt; patients: True  |  biopsies -&gt; patients: True</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e6 both tables are indexed by date test_results and biopsies indexed by collection date. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E6</span><h3>Both tables are indexed by date</h3><span class="time">2 ms</span></div>
+ <p class="src">Interview Q4</p>
+ <dl><dt>Requirement</dt><dd>Test_Results and Biopsies indexed by collection date.</dd><dt>How it is tested</dt><dd>Reads the indexes of both tables.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>test_results by test_date: True  |  biopsies by biopsy_date: True</p></div><div class="good"><span>Actual</span><p>test_results by test_date: True  |  biopsies by biopsy_date: True</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e7 one patient can have 5 to 10 tests in a year a single recipient is tested 5 to 10 times over a year. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E7</span><h3>One patient can have 5 to 10 tests in a year</h3><span class="time">179 ms</span></div>
+ <p class="src">Interview Q4</p>
+ <dl><dt>Requirement</dt><dd>A single recipient is tested 5 to 10 times over a year.</dd><dt>How it is tested</dt><dd>Uploads 8 monthly tests for one patient, uploads the same file again, and counts the saved records.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>saved records: 8</p></div><div class="good"><span>Actual</span><p>saved records: 8</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e8 the chart has a dashed threshold line at 0.0 horizontal threshold line at 0.0 separating negative and positive risk zones. cm_score by date trend chart">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E8</span><h3>The chart has a dashed threshold line at 0.0</h3><span class="time">393 ms</span></div>
+ <p class="src">Interview Q5</p>
+ <dl><dt>Requirement</dt><dd>Horizontal threshold line at 0.0 separating negative and positive risk zones.</dd><dt>How it is tested</dt><dd>Draws the CM-Score trend with Matplotlib and reads its lines back.</dd>
+ <dt>Fields in</dt><dd><span class="chip in">CM_Score by date</span></dd><dt>Fields out</dt><dd><span class="chip out">trend chart</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>a dashed horizontal line at y = 0.0</p></div><div class="good"><span>Actual</span><p>dashed line at y = 0.0 found</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e9 downloadable pdf with the chart embedded render the matplotlib figure to an in-memory buffer and embed it in a pdf (reportlab). pdf file">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E9</span><h3>Downloadable PDF with the chart embedded</h3><span class="time">332 ms</span></div>
+ <p class="src">Interview Q5</p>
+ <dl><dt>Requirement</dt><dd>Render the Matplotlib figure to an in-memory buffer and embed it in a PDF (ReportLab).</dd><dt>How it is tested</dt><dd>Downloads the patient PDF for PT-104 and checks that it is a real PDF containing an image.</dd>
+ <dt>Fields out</dt><dd><span class="chip out">PDF file</span></dd></dl>
+ <div class="cmp"><div><span>Expected</span><p>http: 200  |  type: application/pdf  |  starts with %PDF: True  |  contains image: True</p></div><div class="good"><span>Actual</span><p>http: 200  |  type: application/pdf  |  starts with %PDF: True  |  contains image: True</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e10 the patient view covers the last 6 months a patient&#x27;s cm-score trend over 6 months. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E10</span><h3>The patient view covers the last 6 months</h3><span class="time">63 ms</span></div>
+ <p class="src">Interview Q5</p>
+ <dl><dt>Requirement</dt><dd>A patient&#x27;s CM-Score trend over 6 months.</dd><dt>How it is tested</dt><dd>Uploads tests in Jan, Aug and Oct 2026 for one patient. The default view must drop January; 12 months must keep all.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>6 months: 2026-08-01, 2026-10-05  |  12 months: 3</p></div><div class="good"><span>Actual</span><p>6 months: 2026-08-01, 2026-10-05  |  12 months: 3</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e11 clinical interpretation is rule-based and repeatable deterministic, rule-based interpretation text that runs 100% offline. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E11</span><h3>Clinical interpretation is rule-based and repeatable</h3><span class="time">0 ms</span></div>
+ <p class="src">Interview Q6</p>
+ <dl><dt>Requirement</dt><dd>Deterministic, rule-based interpretation text that runs 100% offline.</dd><dt>How it is tested</dt><dd>Asks for the interpretation of a High and a Low result twice each; the text must be the same every time.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>same text each time; High mentions elevated risk, Low mentions low risk</p></div><div class="good"><span>Actual</span><p>text repeatable; High and Low differ as expected</p></div></div>
+</article><article class="test passed" data-status="passed" data-text="e12 no external ai or web service is used patient data must not be sent to external cloud apis. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E12</span><h3>No external AI or web service is used</h3><span class="time">6 ms</span></div>
+ <p class="src">Interview Q6</p>
+ <dl><dt>Requirement</dt><dd>Patient data must not be sent to external cloud APIs.</dd><dt>How it is tested</dt><dd>Scans every file in backend/app for imports of openai, anthropic, requests, httpx, aiohttp or urllib, and for web addresses of AI services.</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>files with external calls: </p></div><div class="good"><span>Actual</span><p>files with external calls: </p></div></div>
+</article><article class="test skipped" data-status="skipped" data-text="e13 docker volumes and daily pg_dump backup persistent docker volumes and a daily pg_dump backup to a second drive. ">
+ <div class="top"><span class="badge skipped">Not built</span><span class="tid">E13</span><h3>Docker volumes and daily pg_dump backup</h3><span class="time">0 ms</span></div>
+ <p class="src">Interview Q7</p>
+ <dl><dt>Requirement</dt><dd>Persistent Docker volumes and a daily pg_dump backup to a second drive.</dd><dt>How it is tested</dt><dd>Not built yet: you asked to leave Docker out for now.</dd>
+ </dl>
+ <p class="note skipped">Not built yet. Docker and the pg_dump backup were left out on request.</p>
+</article><article class="test passed" data-status="passed" data-text="e14 hand-calculated reference tests exist and pass write unit tests against hand-calculated reference examples before deploying. ">
+ <div class="top"><span class="badge passed">Passed</span><span class="tid">E14</span><h3>Hand-calculated reference tests exist and pass</h3><span class="time">9711 ms</span></div>
+ <p class="src">Interview Q8</p>
+ <dl><dt>Requirement</dt><dd>Write unit tests against hand-calculated reference examples before deploying.</dd><dt>How it is tested</dt><dd>Runs the project&#x27;s own pytest files (tests/test_calculations.py and tests/test_api.py).</dd>
+ </dl>
+ <div class="cmp"><div><span>Expected</span><p>all project tests pass</p></div><div class="good"><span>Actual</span><p>9 passed</p></div></div>
+</article></section>
+<p class="none" id="none" hidden>No checks match.</p>
+<footer>Create this page again any time: <code>py make_test_report.py</code> in the backend folder.</footer>
+</main>
+<script>
+const tests=[...document.querySelectorAll('.test')];let st='';
+function apply(){const q=document.getElementById('q').value.trim().toLowerCase();let n=0;
+ tests.forEach(t=>{const ok=(!st||t.dataset.status===st)&&(!q||t.dataset.text.includes(q));t.hidden=!ok;if(ok)n++;});
+ document.getElementById('none').hidden=n>0;}
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));st=b.dataset.v;apply();});
+document.getElementById('q').addEventListener('input',apply);
+</script></body></html>

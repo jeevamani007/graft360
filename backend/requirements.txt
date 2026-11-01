@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sqlalchemy>=2.0
+psycopg2-binary
+pandas
+matplotlib
+reportlab
+python-multipart
+pytest
+httpx

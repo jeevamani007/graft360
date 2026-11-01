@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graft 360</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Main">
+  <div class="nav-in">
+    <a class="logo" href="#/upload"><span class="dot" aria-hidden="true"></span>Graft 360</a>
+    <div class="links">
+      <a href="#/upload" data-nav="upload">Upload</a>
+      <a href="#/results" data-nav="results">Results</a>
+      <a href="#/history" data-nav="history">History</a>
+      <a href="#/patients" data-nav="patients">Patients</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+  <!-- UPLOAD -->
+  <section id="page-upload" class="page" hidden>
+    <header class="hero">
+      <h1>Know the risk. Sooner.</h1>
+      <p>Upload your HoloGRAFT CSV. Graft 360 checks every row, calculates the CM-Score and flags what needs attention.</p>
+    </header>
+    <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose a CSV file to upload">
+      <div class="drop-icon" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      </div>
+      <h2>Drop a CSV file here</h2>
+      <p>or <span class="link">choose a file</span> from your computer</p>
+      <input id="csvFile" type="file" accept=".csv,text/csv" hidden>
+    </div>
+    <p class="hint">Required columns: <span id="cols"></span> &nbsp;<a class="link" href="/api/template.csv">Download template</a></p>
+    <div id="uploadBusy" class="busy" hidden><span class="spin"></span>Processing your file</div>
+    <div id="uploadError" class="alert error" hidden></div>
+    <div id="uploadResult"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="page-results" class="page" hidden>
+    <header class="page-head"><h1>Results</h1><p>Every saved test, with search and filters.</p></header>
+    <div class="card filters">
+      <input id="fPid" type="search" placeholder="Search patient ID" aria-label="Patient ID">
+      <label>From<input id="fFrom" type="date"></label>
+      <label>To<input id="fTo" type="date"></label>
+      <div class="seg" id="fStatus" role="group" aria-label="Risk status">
+        <button class="on" data-v="">All</button><button data-v="high">High risk</button>
+        <button data-v="low">Low risk</button><button data-v="invalid">Invalid</button>
+      </div>
+      <button class="btn" id="fClear">Clear</button>
+      <a class="btn primary" id="fExport" href="/api/results/export.csv">Export CSV</a>
+    </div>
+    <div class="card table-card"><div class="scroll" id="resultsTable"></div></div>
+    <div class="pager"><span id="pageInfo" class="muted"></span><span><button class="btn" id="prev">Previous</button> <button class="btn" id="next">Next</button></span></div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="page-history" class="page" hidden>
+    <header class="page-head"><h1>Upload history</h1><p>Every file you uploaded and what happened to it.</p></header>
+    <div class="card table-card"><div class="scroll" id="historyTable"></div></div>
+  </section>
+
+  <!-- ONE UPLOAD -->
+  <section id="page-batch" class="page" hidden>
+    <a class="back link" href="#/history">Back to history</a>
+    <div id="batchView"></div>
+  </section>
+
+  <!-- PATIENTS -->
+  <section id="page-patients" class="page" hidden>
+    <header class="page-head"><h1>Patients</h1><p>Test history, CM-Score trend and biopsy outcomes.</p></header>
+    <div class="cols">
+      <aside class="card side">
+        <input id="pSearch" type="search" placeholder="Search patients" aria-label="Search patients">
+        <ul id="patientList" class="plist"></ul>
+        <form id="patientForm" class="form">
+          <h3>Add or update patient</h3>
+          <input name="patient_id" placeholder="Patient ID" required>
+          <input name="full_name" placeholder="Full name">
+          <label>Date of birth<input type="date" name="date_of_birth"></label>
+          <select name="sex" aria-label="Sex"><option value="">Sex</option><option>Male</option><option>Female</option><option>Other</option></select>
+          <label>Transplant date<input type="date" name="transplant_date"></label>
+          <button class="btn primary">Save patient</button>
+        </form>
+      </aside>
+      <div class="card detail" id="detail"><p class="empty">Select a patient to see their trend, results and biopsies.</p></div>
+    </div>
+  </section>
+</main>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
